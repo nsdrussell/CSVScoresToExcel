@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScoresToExcelApp", "ScoresToExcelApp\ScoresToExcelApp.csproj", "{F7B905B7-166C-4CCE-89C8-781F4FF20662}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F7B905B7-166C-4CCE-89C8-781F4FF20662}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7B905B7-166C-4CCE-89C8-781F4FF20662}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7B905B7-166C-4CCE-89C8-781F4FF20662}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7B905B7-166C-4CCE-89C8-781F4FF20662}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3940BF5E-7DA2-48B9-897E-35159BE8BD77}
+	EndGlobalSection
+EndGlobal

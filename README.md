@@ -3,13 +3,12 @@ This is a small application that generates spreadsheets for a sports club. The o
 
 There is a system in place already to keep track of scores, which includes the ability to scores to .csv format. Currently, heads of sections must do a manual process of data cleaning and copying into spreadsheets which is time consuming, and as a result often delayed because time has not been found to do it.
 
-Hopefully this should speed things up.
+## Arguments
+The filename can be passed as an argument to read it on opening. Right click in Windows Explorer on your desired .csv file->Open With...-> Choose another app-> Choose the application executable and it will read it on opening. This will save having to select the file manually.
 
 ## Build
 Build instructions
-In Visual Studio, load the .sln file under `\Source\`, then build and run. Since it is a WPF app it can probably be built in a version as early as 2012 if desired. I built and coded it using VS2019 originally, and currently it uses dotnet framework 4.7.2.
-
-The filename can be passed as an argument to read it on opening. Right click in Windows Explorer on your desired .csv file->Click Open With...-> Choose the application exe and it will read it on opening. This will save having to worry
+In Visual Studio, load the .sln file under `\src\ScoresToExcelApp\`, then build and run. You will need WPF (Windows Presentation Foundation) and .NET Framework 4.7.2 enabled. I wrote and built this using VS2019.
 
 ## Information
 ### Input

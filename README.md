@@ -5,3 +5,16 @@ There is a system in place already to keep track of scores, which includes the a
 
 Hopefully this should speed things up.
 
+## Other information
+
+The expected input looks like this.
+
+`sportname_export-unixtimeofexport.csv`
+```
+Name,Member Nos,Average,Scores
+"person a",1234,92.5,92,93
+"person b",5678,81.67,81,82,82
+```
+The number of columns is variable depending on the number of scores that have been put in.
+
+Each row is separated by a line feed (\n).

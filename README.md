@@ -19,4 +19,4 @@ The number of columns is variable depending on the number of scores that have be
 
 Each row is separated by a line feed (\n).
 ### Data
-The application does a small amount of data cleaning, scores that are too different from a trimmed mean are marked as such.
+The application does a small amount of data cleaning, - scores that are too different from a trimmed mean are marked as such.

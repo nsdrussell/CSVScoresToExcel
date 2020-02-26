@@ -7,7 +7,7 @@ Hopefully this should speed things up.
 
 ## Build
 Build instructions
-In Visual Studio, load the .sln file under `\Source\`, then build and run. Since it is a WPF app it can probably be built in a version as early as 2012 if desired.
+In Visual Studio, load the .sln file under `\Source\`, then build and run. Since it is a WPF app it can probably be built in a version as early as 2012 if desired. I built and coded it using VS2019 originally, and currently it uses dotnet framework 4.7.2.
 
 The filename can be passed as an argument to read it on opening. Right click in Windows Explorer on your desired .csv file->Click Open With...-> Choose the application exe and it will read it on opening. This will save having to worry
 
@@ -34,5 +34,5 @@ Data cleansing is done so that if a member ordinarily scores in the 70s and inpu
 ## Further information
 ### Arithmetic
 I adapted the TruncatedMean method from the [Accord.NET](github.com/accord-net) framework.
-### EPPlus
-I chose to use EPPlus to output the data to excel as I am familiar with it and it works well.
+### Exporting to Excel format
+I chose to use the [EPPlus framework](https://github.com/JanKallman/EPPlus) to output the data to excel as I am familiar with it and it works well.

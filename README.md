@@ -1,13 +1,12 @@
 # CSVScoresToExcel
 This is a small application that generates spreadsheets for a sports club. The outputs are intended to be viewed by members to see how they are doing. 
 
-There is a system in place already to keep track of scores, which includes the ability to export scores to .csv format. Currently, heads of sections must do a manual process of data cleaning and copying into spreadsheets which is time consuming, and as a result often delayed because time has not been found to do it.
+There is a system in place already to keep track of scores, which includes the ability to export scores to .csv format. Currently, heads of sections must do a manual process of data cleansing and copying into spreadsheets which is time consuming, and as a result often delayed because time has not been found to do it.
 
 ## Arguments
-The filename can be passed as an argument to read it on opening. Right click in Windows Explorer on your desired .csv file->Open With...-> Choose another app-> Choose the application executable and it will read it on opening. This will save having to select the file manually.
+The filename can be passed as an argument to read it on opening. Right click in Windows Explorer on your desired .csv file->Open With...-> Choose another app-> Choose the application executable. The application will read it on opening. This will save having to select the file manually.
 
-## Build
-Build instructions
+## Build instructions
 In Visual Studio, load the .sln file under `\src\ScoresToExcelApp\`, then build and run. You will need WPF (Windows Presentation Foundation) and .NET Framework 4.7.2 enabled. I wrote and built this using VS2019.
 
 ## Information

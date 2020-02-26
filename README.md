@@ -18,5 +18,10 @@ Name,Member Nos,Average,Scores
 The number of columns is variable depending on the number of scores that have been put in.
 
 Each row is separated by a line feed (\n).
-### Data
-The application does a small amount of data cleaning, - scores that are too different from a trimmed mean are marked as such.
+### Data handling
+I tried parsing the entire file to a DataTable, but unfortunately there is a varying number of columns and the solutions I tried were not quite up to scratch as a result.
+
+The application does a small amount of data cleansing, - scores that are too different from a trimmed mean are kept separately so they can be marked on output. I adapted the TruncatedMean method from the [Accord.NET](github.com/accord-net) framework.
+
+### EPPlus
+I chose to use EPPlus to output the data to excel as I am familiar with it and it works well.

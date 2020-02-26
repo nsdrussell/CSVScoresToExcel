@@ -39,12 +39,29 @@ namespace ScoresToExcelApp
             return results;
         }
 
+        /// <summary>
+        /// Returns as string like "SPORTNAME Scores yyyyMMdd
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
-            return $"{SportName}, Export date: {ExportDateTime.ToString("dd/MM/yyyy")}";
+            return $"{SportName}, Export date: {ExportDateTime.ToString("yyyyMMdd")}";
         }
 
-        internal void ExportToExcel()
+        public FileInfo GetNewFileFileInfo()
+        {
+            var myDocuments = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var newFileName = $"{SportName} Scores {DateTime.Now.ToString("yyyyMMdd")}.xlsx";
+
+            FileInfo fileInfo = new FileInfo(myDocuments + "\\" + newFileName);
+            return fileInfo;
+        }
+
+        /// <summary>
+        /// Export to excel. Returns the filename.
+        /// </summary>
+        /// <returns></returns>
+        internal string ExportToExcel()
         {
             using (ExcelPackage package = new ExcelPackage())
             {
@@ -97,10 +114,9 @@ namespace ScoresToExcelApp
 
                 for (int i = ExcelScoresMinimumColumnIndex; i <= sheet.Dimension.End.Column; i++) { sheet.Column(i).Width = 3; }
 
-                var myDocuments = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                var newFileName = $"{SportName} {DateTime.Now.ToString("yyyyMMdd")}.xlsx";
-                FileInfo fi = new FileInfo(myDocuments + "\\" + newFileName);
-                package.SaveAs(fi);
+                var fileInfo = GetNewFileFileInfo();
+                package.SaveAs(fileInfo);
+                return fileInfo.FullName;
             }
         }
     }

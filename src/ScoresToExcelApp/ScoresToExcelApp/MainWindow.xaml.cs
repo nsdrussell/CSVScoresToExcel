@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,31 +19,49 @@ namespace ScoresToExcelApp
         public MainWindow()
         {
             InitializeComponent();
-            fileNameTextBox.TextChanged += fileNameTextBox_TextChanged;
+            FileNameTextBox.TextChanged += FileNameTextBox_TextChanged;
             if (App.Args != null)
             {
                 var fileName = App.Args[0];
-                fileNameTextBox.Text = fileName;
+                FileNameTextBox.Text = fileName;
             };
         }
 
-        private void fileNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void FileNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            CSVParser parser = new CSVParser(fileNameTextBox.Text);
-            string result;
-            if (parser.CheckCanParse(out result))
+            if (!CheckContainsValidFileNameAndPath(FileNameTextBox.Text))
             {
-                currentDataset = parser.ParseIntoPeopleWithScores();
-                StatusLabel.Content = $"File successfully read.{Environment.NewLine}{currentDataset.ToString()}";
-                PopulateDataGrid();
+                StatusTextBlock.Text = "The current input is not a valid file path with filename.";
             }
             else
             {
-                StatusLabel.Content = "This file can not be read. Are you sure it's the right file?";
+                CSVParser parser = new CSVParser(FileNameTextBox.Text);
+                string result;
+                if (parser.CheckCanParse(out result))
+                {
+                    currentDataset = parser.ParseIntoPeopleWithScores();
+                    StatusTextBlock.Text = $"File successfully read.";
+                    PopulateDataGrid();
+                    ExportToExcelButton.IsEnabled = true;
+                }
+                else
+                {
+                    StatusTextBlock.Text = "This file can not be read. Are you sure it's the right file?";
+                    //ExportToExcelButton.IsEnabled = false;
 
-                if (!string.IsNullOrEmpty(result))
-                    StatusLabel.Content += "The following error was returned:" + Environment.NewLine + result;
+                    if (!string.IsNullOrEmpty(result))
+                        StatusTextBlock.Text += $"{Environment.NewLine}The following error was returned:{Environment.NewLine}{result}";
+                }
             }
+            if (currentDataset != null)
+            {
+                StatusTextBlock.Text += $"{Environment.NewLine}Dataset: {currentDataset.ToString()}";
+            }
+        }
+
+        private bool CheckContainsValidFileNameAndPath(string text)
+        {
+            return text.EndsWith(".csv") && text.Contains('\\');
         }
 
         private void PopulateDataGrid()
@@ -121,7 +140,19 @@ namespace ScoresToExcelApp
 
         private void ExportToExcelButton_Click(object sender, RoutedEventArgs e)
         {
-            currentDataset.ExportToExcel();
+            var filename = currentDataset.ExportToExcel();
+            var messageBoxResult = MessageBox.Show($"Output successful. Saved to:{Environment.NewLine}{filename}{Environment.NewLine}" +
+                $"Would you like to open the export?",
+                "Success", MessageBoxButton.YesNo, MessageBoxImage.Information);
+
+            if (messageBoxResult == MessageBoxResult.Yes)
+            {
+                Process.Start(filename);
+                if ((bool)CloseCheckBox.IsChecked)
+                {
+                    Close();
+                }
+            }
         }
 
         private void ChooseFileButton_Click(object sender, RoutedEventArgs e)
@@ -136,7 +167,7 @@ namespace ScoresToExcelApp
             };
 
             var result = filepicker.ShowDialog();
-            if (result.HasValue && result.Value) fileNameTextBox.Text = filepicker.FileName;
+            if (result.HasValue && result.Value) FileNameTextBox.Text = filepicker.FileName;
         }
     }
 }

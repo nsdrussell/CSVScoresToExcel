@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,48 +16,113 @@ namespace ScoresToExcelApp
     public partial class MainWindow : Window
     {
         private FileDataset currentDataset;
+        private FileDataset previousDataset;
 
         public MainWindow()
         {
             InitializeComponent();
-            FileNameTextBox.TextChanged += FileNameTextBox_TextChanged;
+            CurrentFileNameTextBox.TextChanged += CurrentFileNameTextBox_TextChanged;
+            PreviousFileNameTextBox.TextChanged += PreviousFileNameTextBox_TextChanged;
             if (App.Args != null)
             {
                 var fileName = App.Args[0];
-                FileNameTextBox.Text = fileName;
+                CurrentFileNameTextBox.Text = fileName;
             };
         }
 
-        private void FileNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void PreviousFileNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (!CheckContainsValidFileNameAndPath(FileNameTextBox.Text))
+            if (!CheckContainsValidFileNameAndPath(CurrentFileNameTextBox.Text))
+            {
+                StatusTextBlock.Text = "The previous input is not a valid file path with filename.";
+            }
+            else
+            {
+                CSVParser parser = new CSVParser(PreviousFileNameTextBox.Text);
+                if (parser.CheckCanParse(out string result))
+                {
+                    previousDataset = parser.ParseIntoPeopleWithScores(FileDatasetType.PreviousMonth);
+                    StatusTextBlock.Text = $"File successfully read.";
+                    PopulateDataGrid();
+                    StartDateCalendar.SelectedDateChanged += StartDateCalendar_SelectedDateChanged;
+                    EndDateCalendar.SelectedDateChanged += EndDateCalendar_SelectedDateChanged;
+                    ExportToExcelButton.IsEnabled = true;
+                }
+                else
+                {
+                    StatusTextBlock.Text = "File can't be read.";
+
+                    if (!string.IsNullOrEmpty(result))
+                        StatusTextBlock.Text += $" Error:{Environment.NewLine}{result}";
+                }
+            }
+            if (previousDataset != null)
+            {
+                StatusTextBlock.Text += $"{Environment.NewLine}Last month dataset: {previousDataset.ToString()}";
+                SetCurrentDatasetPreviousAverages();
+            }
+        }
+
+        private void SetCurrentDatasetPreviousAverages()
+        {
+            if (currentDataset != null && previousDataset != null)
+            {
+                foreach (var memberInCurrentDataset in currentDataset.PeopleWithScores)
+                {
+                    if (previousDataset.PeopleWithScores.Any(member => member.MemberName == memberInCurrentDataset.MemberName))
+                    {
+                        var memberInPreviousDataset = previousDataset.PeopleWithScores.First(member => member.MemberName == memberInCurrentDataset.MemberName);
+
+                        memberInCurrentDataset.SetPreviousAverage(memberInPreviousDataset.AdjustedAverage);
+                    }
+                }
+                ScoresDataGrid.Items.Refresh();
+            }
+        }
+
+        private void CurrentFileNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!CheckContainsValidFileNameAndPath(CurrentFileNameTextBox.Text))
             {
                 StatusTextBlock.Text = "The current input is not a valid file path with filename.";
             }
             else
             {
-                CSVParser parser = new CSVParser(FileNameTextBox.Text);
+                CSVParser parser = new CSVParser(CurrentFileNameTextBox.Text);
                 string result;
                 if (parser.CheckCanParse(out result))
                 {
-                    currentDataset = parser.ParseIntoPeopleWithScores();
+                    currentDataset = parser.ParseIntoPeopleWithScores(FileDatasetType.CurrentMonth);
                     StatusTextBlock.Text = $"File successfully read.";
                     PopulateDataGrid();
+                    StartDateCalendar.SelectedDateChanged += StartDateCalendar_SelectedDateChanged;
+                    EndDateCalendar.SelectedDateChanged += EndDateCalendar_SelectedDateChanged;
                     ExportToExcelButton.IsEnabled = true;
                 }
                 else
                 {
-                    StatusTextBlock.Text = "This file can not be read. Are you sure it's the right file?";
+                    StatusTextBlock.Text = "File can't be read.";
                     //ExportToExcelButton.IsEnabled = false;
 
                     if (!string.IsNullOrEmpty(result))
-                        StatusTextBlock.Text += $"{Environment.NewLine}The following error was returned:{Environment.NewLine}{result}";
+                        StatusTextBlock.Text += $" Error:{Environment.NewLine}{result}";
                 }
             }
             if (currentDataset != null)
             {
                 StatusTextBlock.Text += $"{Environment.NewLine}Dataset: {currentDataset.ToString()}";
+                SetCurrentDatasetPreviousAverages();
             }
+        }
+
+        private void EndDateCalendar_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            currentDataset.EndDate = (DateTime)(sender as DatePicker).SelectedDate;
+        }
+
+        private void StartDateCalendar_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            currentDataset.StartDate = (DateTime)(sender as DatePicker).SelectedDate;
         }
 
         private bool CheckContainsValidFileNameAndPath(string text)
@@ -76,13 +142,18 @@ namespace ScoresToExcelApp
                 };
                 DataGridTextColumn averageColumn = new DataGridTextColumn()
                 {
-                    Header = "Member Average",
-                    Binding = new Binding("UnadjustedAverage")
+                    Header = "Average",
+                    Binding = new Binding("UnadjustedAverage") { StringFormat = "N2" }
                 };
                 adjustedAverageColumn = new DataGridTextColumn()
                 {
-                    Header = "Adjusted Average",
-                    Binding = new Binding("AdjustedAverage")
+                    Header = "Adjusted",
+                    Binding = new Binding("AdjustedAverage") { StringFormat = "N2" }
+                };
+                DataGridTextColumn previousAverageColumn = new DataGridTextColumn()
+                {
+                    Header = "Previous",
+                    Binding = new Binding("PreviousAverage") { StringFormat = "N2" }
                 };
                 DataGridTextColumn scoreColumn = new DataGridTextColumn()
                 {
@@ -103,6 +174,7 @@ namespace ScoresToExcelApp
                 ScoresDataGrid.Columns.Add(nameCol);
                 ScoresDataGrid.Columns.Add(averageColumn);
                 ScoresDataGrid.Columns.Add(adjustedAverageColumn);
+                ScoresDataGrid.Columns.Add(previousAverageColumn);
                 ScoresDataGrid.Columns.Add(scoreColumn);
                 ScoresDataGrid.Columns.Add(badScoresColumn);
                 ScoresDataGrid.Columns.Add(categoryColumn);
@@ -140,7 +212,17 @@ namespace ScoresToExcelApp
 
         private void ExportToExcelButton_Click(object sender, RoutedEventArgs e)
         {
-            var filename = currentDataset.ExportToExcel();
+            string filename;
+            try
+            {
+                filename = currentDataset.ExportToExcel();
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("For some reason the file can't be saved. Is there currently one you just made open? If there is, shut it.", "Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
             var messageBoxResult = MessageBox.Show($"Output successful. Saved to:{Environment.NewLine}{filename}{Environment.NewLine}" +
                 $"Would you like to open the export?",
                 "Success", MessageBoxButton.YesNo, MessageBoxImage.Information);
@@ -155,7 +237,7 @@ namespace ScoresToExcelApp
             }
         }
 
-        private void ChooseFileButton_Click(object sender, RoutedEventArgs e)
+        private void CurrentChooseFileButton_Click(object sender, RoutedEventArgs e)
         {
             var myDocuments = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             var filepicker = new OpenFileDialog()
@@ -167,7 +249,27 @@ namespace ScoresToExcelApp
             };
 
             var result = filepicker.ShowDialog();
-            if (result.HasValue && result.Value) FileNameTextBox.Text = filepicker.FileName;
+            if (result.HasValue && result.Value) CurrentFileNameTextBox.Text = filepicker.FileName;
+        }
+
+        private void PreviousChooseFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var myDocuments = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var filepicker = new OpenFileDialog()
+            {
+                InitialDirectory = myDocuments,
+                Multiselect = false,
+                Filter = "Flat file database (*.csv)|*.csv",
+                DefaultExt = " *.csv"
+            };
+
+            var result = filepicker.ShowDialog();
+            if (result.HasValue && result.Value) PreviousFileNameTextBox.Text = filepicker.FileName;
+        }
+
+        private void SourceLabel_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Process.Start("https://github.com/nsdrussell/CSVScoresToExcel");
         }
     }
 }

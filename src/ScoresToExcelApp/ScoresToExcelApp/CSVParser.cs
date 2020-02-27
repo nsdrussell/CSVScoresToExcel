@@ -12,7 +12,7 @@ namespace ScoresToExcelApp
             FileName = fileName;
         }
 
-        public FileDataset ParseIntoPeopleWithScores()
+        public FileDataset ParseIntoPeopleWithScores(FileDatasetType datasetType)
         {
             var peopleWithScores = new List<PersonWithScores>();
             using (var reader = new StreamReader(FileName))
@@ -29,7 +29,7 @@ namespace ScoresToExcelApp
                 }
             }
 
-            return new FileDataset(peopleWithScores, FileName);
+            return new FileDataset(peopleWithScores, FileName, datasetType);
         }
 
         internal bool CheckCanParse(out string result)

@@ -19,6 +19,7 @@ namespace ScoresToExcelApp
         public int[] Scores { get; }
         public int[] ErroneousScores { get; private set; }
         public int[] AdjustedScores { get; private set; }
+        public double? PreviousAverage { get; private set; }
 
         public ScorerCategory Category { get; }
         public string ReadableCategory { get; }
@@ -86,6 +87,11 @@ namespace ScoresToExcelApp
             AdjustedScores = Scores.Where(score => !ErroneousScores.Contains(score)).ToArray();
 
             AdjustedAverage = Math.Round(AdjustedScores.Average(), 2);
+        }
+
+        public void SetPreviousAverage(double previousAverage)
+        {
+            PreviousAverage = previousAverage;
         }
 
         public override string ToString()

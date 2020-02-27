@@ -31,6 +31,6 @@ Data cleansing is done so that if a member ordinarily scores in the 70s and inpu
 
 ## Further information
 ### Arithmetic
-I adapted the TruncatedMean method from the [Accord.NET](github.com/accord-net) framework.
+I adapted the TruncatedMean method from the [Accord.NET framework](https://github.com/accord-net/framework).
 ### Exporting to Excel format
 I chose to use the [EPPlus framework](https://github.com/JanKallman/EPPlus) to output the data to excel as I am familiar with it and it works well.

@@ -5,28 +5,51 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ScoresToExcelApp"
         mc:Ignorable="d"
-        Title="CSV Scores to excel" Height="450" Width="800" MinHeight="300" MinWidth="450" WindowStartupLocation="CenterScreen">
-    <Grid Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        Title="CSV Scores to excel" Height="500" Width="800" MinHeight="300" MinWidth="500" WindowStartupLocation="CenterScreen"
+         FontSize="13">
+    <Grid Margin="10,5,5,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition MinWidth="300" Width ="1*" />
             <ColumnDefinition Width ="2*" />
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0" Margin="0,0,10,0">
             <Grid.RowDefinitions>
+                <RowDefinition Height="20" />
                 <RowDefinition Height="40" />
+                <RowDefinition Height="40" />
+                <RowDefinition Height="20" />
                 <RowDefinition Height="40" />
                 <RowDefinition Height="40" />
                 <RowDefinition Height="80" />
+                <RowDefinition Height="60" />
+                <RowDefinition Height="20" />
                 <RowDefinition Height="40" />
                 <RowDefinition Height="40" />
             </Grid.RowDefinitions>
-
-            <TextBlock Text="Choose an export from the online scoring system to read scores from. It should be in .csv format." TextWrapping="Wrap"  Grid.Row="0" />
-            <TextBox x:Name="FileNameTextBox" Grid.Row="1"  TextWrapping="Wrap" />
-            <Button Content="Choose File..." Grid.Row="2" Margin="20,10,20,0" Click="ChooseFileButton_Click" />
-            <TextBlock x:Name="StatusTextBlock" Grid.Row="3"  Margin="0,10,0,0" TextWrapping="Wrap" />
-            <CheckBox Content="Close application on export opening?" IsChecked="False" x:Name="CloseCheckBox" Grid.Row="4" />
-            <Button x:Name="ExportToExcelButton" IsEnabled="False" Content="Export to Excel" Grid.Row="5" Margin="20,10,20,0" Click="ExportToExcelButton_Click" />
+            <TextBlock Text="Pick the .csv export for the current month." TextWrapping="Wrap"  Grid.Row="0" />
+            <TextBox x:Name="CurrentFileNameTextBox" Grid.Row="1"  TextWrapping="Wrap" />
+            <Button Content="Choose File..." Grid.Row="2" Margin="20,10,20,0" Click="CurrentChooseFileButton_Click" />
+            <TextBlock Text="Pick the .csv export for the previous month." TextWrapping="Wrap"  Grid.Row="3" />
+            <TextBox x:Name="PreviousFileNameTextBox" Grid.Row="4"  TextWrapping="Wrap" />
+            <Button Content="Choose File..." Grid.Row="5" Margin="20,10,20,0" Click="PreviousChooseFileButton_Click" />
+            <TextBlock x:Name="StatusTextBlock" Grid.Row="6"  Margin="0,10,0,0" TextWrapping="Wrap" />
+            <Grid Grid.Row="7">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height=".7*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Label Grid.Column="0" Grid.Row="0" Content="Start date" />
+                <Label Grid.Column="1" Grid.Row="0" Content="End date" />
+                <DatePicker x:Name="StartDateCalendar" Grid.Column="0" Grid.Row="1" />
+                <DatePicker x:Name="EndDateCalendar" Grid.Column="1" Grid.Row="1" />
+            </Grid>
+            <CheckBox Content="Close application on export opening?" IsChecked="False" x:Name="CloseCheckBox" Grid.Row="8" />
+            <Button x:Name="ExportToExcelButton" IsEnabled="False" Content="Export to Excel" Grid.Row="9" Margin="20,10,20,0" Click="ExportToExcelButton_Click" />
+            <Label Grid.Row="10" Content="Source Code Here: github.com/nsdrussell/CSVScoresToExcel/" MouseDown="SourceLabel_MouseDown" />
         </Grid>
         <DataGrid x:Name="ScoresDataGrid" Grid.Column="1" AlternatingRowBackground="AntiqueWhite" IsReadOnly="True" />
     </Grid>

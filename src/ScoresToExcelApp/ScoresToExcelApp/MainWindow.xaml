@@ -29,30 +29,24 @@
             <TextBox x:Name="CurrentFileNameTextBox" Grid.Row="1"  TextWrapping="Wrap" />
             <Button Content="Choose File..." Grid.Row="2" Margin="20,10,20,0" Click="CurrentChooseFileButton_Click" />
             <TextBlock Text="Pick the .csv export for the previous month." TextWrapping="Wrap"  Grid.Row="3" />
-            <TextBox x:Name="PreviousFileNameTextBox" Grid.Row="4"  TextWrapping="Wrap" />
-            <Button Content="Choose File..." Grid.Row="5" Margin="20,10,20,0" Click="PreviousChooseFileButton_Click" />
+            <TextBox x:Name="PreviousFileNameTextBox" Grid.Row="4"  TextWrapping="Wrap" IsEnabled="false" />
+            <Button x:Name="PreviousChooseFileButton" Content="Choose File..." Grid.Row="5" Margin="20,10,20,0" Click="PreviousChooseFileButton_Click" IsEnabled="false" />
             <TextBlock x:Name="StatusTextBlock" Grid.Row="6"  Margin="0,10,0,0" TextWrapping="Wrap" />
             <Grid Grid.Row="7">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
-                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height=".7*" />
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <Label Grid.Column="0" Grid.Row="0" Content="Start date" />
-                <Label Grid.Column="1" Grid.Row="0" Content="End date" />
-                <DatePicker x:Name="StartDateCalendar" Grid.Column="0" Grid.Row="1" />
-                <DatePicker x:Name="EndDateCalendar" Grid.Column="1" Grid.Row="1" />
+                <Label Grid.Row="0" Content="Scores of what month:" />
+                <DatePicker local:DatePickerCalendar.IsMonthYear="True" local:DatePickerDateFormat.DateFormat="MMMM yyyy" x:Name="DateCalendar" Grid.Row="1" Text="MMMM yyyy" />
             </Grid>
             <CheckBox Content="Close application on export opening?" IsChecked="False" x:Name="CloseCheckBox" Grid.Row="8" />
             <Button x:Name="ExportToExcelButton" IsEnabled="False" Content="Export to Excel" Grid.Row="9" Margin="20,10,20,0" Click="ExportToExcelButton_Click" />
         </Grid>
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="30"/>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="30" />
             </Grid.RowDefinitions>
             <DataGrid x:Name="ScoresDataGrid" Grid.Column="1" AlternatingRowBackground="AntiqueWhite"  Grid.Row="0"  IsReadOnly="True" />
             <Label Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Center" Content="Source Code Here: github.com/nsdrussell/CSVScoresToExcel/" MouseDown="SourceLabel_MouseDown" />

@@ -11,19 +11,17 @@ namespace ScoresToExcelApp
 {
     public class FileDataset
     {
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        private string ExcelWorkSheetTitle => $"{SportName} Scores, {StartDate:dd MMMM yyyy} - {EndDate:dd MMMM yyyy)}";
+        public DateTime DateOfScores { get; set; }
+        private string ExcelWorkSheetTitle => $"{SportName} Scores {DateOfScores:MMM yy}";
 
         public List<PersonWithScores> PeopleWithScores { get; }
         public FileDatasetType DatasetType { get; }
         public string SportName { get; }
-        public DateTime ExportDateTime { get; }
 
         private const int ExcelCategoryNameColumnIndex = 1;
         private const int ExcelNameColumnIndex = 2;
-        private const int ExcelAverageColumnIndex = 3;
-        private const int ExcelPreviousAverageColumnIndex = 4;
+        private const int ExcelPreviousAverageColumnIndex = 3;
+        private const int ExcelCurrentAverageColumnIndex = 4;
         private const int ExcelDifferenceColumnIndex = 5;
         private const int ExcelScoresMinimumColumnIndex = 6;
 
@@ -33,32 +31,28 @@ namespace ScoresToExcelApp
             this.DatasetType = datasetType;
             var fileName = Path.GetFileNameWithoutExtension(fullFileName);
 
-            var lastmonth = DateTime.Now.AddMonths(-1);
-            StartDate = lastmonth.AddDays(1 - lastmonth.Day);
-            EndDate = new DateTime(lastmonth.Year, lastmonth.Month, DateTime.DaysInMonth(lastmonth.Year, lastmonth.Month));
+            //assume scores are being done for last month, or the month before dependant on enum value.
+            int datasetMonthOffset = datasetType == FileDatasetType.CurrentMonth ? -1 : -2;
+
+            var lastmonth = DateTime.Now.AddMonths(datasetMonthOffset);
+
+            DateOfScores = lastmonth;
 
             //filename format is sportname_export-1234567890.csv so can derive sportname and export date from it
             SportName = fileName.Split('_')[0];
 
             long epochSeconds = long.Parse(fileName.Split('-')[1]);
-
-            ExportDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified).AddSeconds(epochSeconds);
         }
 
-        public FileDataset(List<PersonWithScores> peopleWithScores, string fullFileName, FileDatasetType datasetType, DateTime startDate, DateTime endDate)
+        public FileDataset(List<PersonWithScores> peopleWithScores, string fullFileName, FileDatasetType datasetType, DateTime monthOfDataset)
         {
             this.PeopleWithScores = peopleWithScores;
             this.DatasetType = datasetType;
-            this.StartDate = startDate;
-            this.EndDate = endDate;
+            this.DateOfScores = monthOfDataset;
 
             var fileName = Path.GetFileNameWithoutExtension(fullFileName);
             //filename format is sportname_export-1234567890.csv so can derive sportname and export date from it
             SportName = fileName.Split('_')[0];
-
-            long epochSeconds = long.Parse(fileName.Split('-')[1]);
-
-            ExportDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified).AddSeconds(epochSeconds);
         }
 
         public void SetPreviousAverage(string name, double average)
@@ -83,13 +77,13 @@ namespace ScoresToExcelApp
         /// <returns></returns>
         public override string ToString()
         {
-            return $"{SportName}, Export date: {ExportDateTime.ToString("yyyyMMdd")}";
+            return $"{SportName} Scores, {(DatasetType == FileDatasetType.CurrentMonth ? "Current Month" : "Previous Month")}";
         }
 
         public FileInfo GetNewFileFileInfo()
         {
             var myDocuments = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            var newFileName = $"{SportName} Scores {StartDate.ToString("yyyyMMdd")} - {EndDate.ToString("yyyyMMdd")}.xlsx";
+            var newFileName = $"{SportName} Scores {DateOfScores.ToString("MMMyy")}.xlsx";
 
             FileInfo fileInfo = new FileInfo(myDocuments + "\\" + newFileName);
             return fileInfo;
@@ -108,12 +102,17 @@ namespace ScoresToExcelApp
 
                 int minimumRowIndex = 1;
                 //headers
+                sheet.Row(minimumRowIndex).Style.Font.Bold = true;
+                sheet.Cells[minimumRowIndex, ExcelPreviousAverageColumnIndex].Value = "Average";
+                sheet.Cells[minimumRowIndex, ExcelPreviousAverageColumnIndex].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                sheet.Cells[minimumRowIndex, ExcelPreviousAverageColumnIndex, minimumRowIndex, ExcelCurrentAverageColumnIndex].Merge = true;
+
                 sheet.Cells[minimumRowIndex++, ExcelCategoryNameColumnIndex].Value = ExcelWorkSheetTitle;
 
                 sheet.Cells[minimumRowIndex, ExcelCategoryNameColumnIndex].Value = "Category";
                 sheet.Cells[minimumRowIndex, ExcelNameColumnIndex].Value = "Name";
-                sheet.Cells[minimumRowIndex, ExcelAverageColumnIndex].Value = "Adjusted Average";
-                sheet.Cells[minimumRowIndex, ExcelPreviousAverageColumnIndex].Value = "Previous Average";
+                sheet.Cells[minimumRowIndex, ExcelPreviousAverageColumnIndex].Value = "Previous";
+                sheet.Cells[minimumRowIndex, ExcelCurrentAverageColumnIndex].Value = "Current";
                 sheet.Cells[minimumRowIndex, ExcelDifferenceColumnIndex].Value = "Difference";
                 sheet.Cells[minimumRowIndex, ExcelScoresMinimumColumnIndex].Value = "Scores";
 
@@ -137,10 +136,10 @@ namespace ScoresToExcelApp
                     foreach (var person in membersInCategory)
                     {
                         sheet.Cells[minimumRowIndex, ExcelNameColumnIndex].Value = person.MemberName;
-                        sheet.Cells[minimumRowIndex, ExcelAverageColumnIndex].Value = person.AdjustedAverage;
+                        sheet.Cells[minimumRowIndex, ExcelCurrentAverageColumnIndex].Value = person.AdjustedAverage;
                         sheet.Cells[minimumRowIndex, ExcelPreviousAverageColumnIndex].Value = person.PreviousAverage;
                         sheet.Cells[minimumRowIndex, ExcelDifferenceColumnIndex].Formula =
-                            $"= IF(D{minimumRowIndex}>0,C{minimumRowIndex}-D{minimumRowIndex},\" \")";
+                            $"= IF(C{minimumRowIndex}>0,D{minimumRowIndex}-C{minimumRowIndex},\" \")";
                         for (int i = 0; i < person.Scores.Length; i++)
                         {
                             sheet.Cells[minimumRowIndex, ExcelScoresMinimumColumnIndex + i].Value
@@ -156,8 +155,8 @@ namespace ScoresToExcelApp
                     }
                 }
                 sheet.Cells.AutoFitColumns();
-                sheet.Column(ExcelAverageColumnIndex).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
-                sheet.Column(ExcelAverageColumnIndex).Style.Numberformat.Format =
+                sheet.Column(ExcelCurrentAverageColumnIndex).Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+                sheet.Column(ExcelCurrentAverageColumnIndex).Style.Numberformat.Format =
                 sheet.Column(ExcelPreviousAverageColumnIndex).Style.Numberformat.Format =
                 sheet.Column(ExcelDifferenceColumnIndex).Style.Numberformat.Format = "0.00";
 

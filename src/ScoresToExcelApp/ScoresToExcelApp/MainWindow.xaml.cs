@@ -22,7 +22,6 @@ namespace ScoresToExcelApp
         {
             InitializeComponent();
             CurrentFileNameTextBox.TextChanged += CurrentFileNameTextBox_TextChanged;
-            PreviousFileNameTextBox.TextChanged += PreviousFileNameTextBox_TextChanged;
             if (App.Args != null)
             {
                 var fileName = App.Args[0];
@@ -42,10 +41,10 @@ namespace ScoresToExcelApp
                 if (parser.CheckCanParse(out string result))
                 {
                     previousDataset = parser.ParseIntoFileDataset(FileDatasetType.PreviousMonth);
+                    SetCurrentDatasetPreviousAverages();
                     StatusTextBlock.Text = $"File successfully read.";
                     PopulateDataGrid();
-                    StartDateCalendar.SelectedDateChanged += StartDateCalendar_SelectedDateChanged;
-                    EndDateCalendar.SelectedDateChanged += EndDateCalendar_SelectedDateChanged;
+                    DateCalendar.SelectedDateChanged += DateCalendar_SelectedDateChanged;
                     ExportToExcelButton.IsEnabled = true;
                 }
                 else
@@ -58,8 +57,7 @@ namespace ScoresToExcelApp
             }
             if (previousDataset != null)
             {
-                StatusTextBlock.Text += $"{Environment.NewLine}Last month dataset: {previousDataset.ToString()}";
-                SetCurrentDatasetPreviousAverages();
+                StatusTextBlock.Text += $"{Environment.NewLine}Last month dataset: {previousDataset}";
             }
         }
 
@@ -74,6 +72,10 @@ namespace ScoresToExcelApp
                         var memberInPreviousDataset = previousDataset.PeopleWithScores.First(member => member.MemberName == memberInCurrentDataset.MemberName);
 
                         memberInCurrentDataset.SetPreviousAverage(memberInPreviousDataset.AdjustedAverage);
+                    }
+                    else //if not reset to zero.
+                    {
+                        memberInCurrentDataset.SetPreviousAverage(null);
                     }
                 }
                 ScoresDataGrid.Items.Refresh();
@@ -93,28 +95,27 @@ namespace ScoresToExcelApp
                 if (parser.CheckCanParse(out result))
                 {
                     //if have set the start date and end date
-                    if (EndDateCalendar.SelectedDate != null && StartDateCalendar.SelectedDate != null)
+                    if (DateCalendar.SelectedDate != null)
                     {
-                        currentDataset = parser.ParseIntoFileDataset(FileDatasetType.CurrentMonth, (DateTime)EndDateCalendar.SelectedDate, (DateTime)StartDateCalendar.SelectedDate);
+                        currentDataset = parser.ParseIntoFileDataset(FileDatasetType.CurrentMonth, (DateTime)DateCalendar.SelectedDate);
                     }
                     else
                     {
                         currentDataset = parser.ParseIntoFileDataset(FileDatasetType.CurrentMonth);
 
-                        if (StartDateCalendar.SelectedDate == null)
-                            StartDateCalendar.SelectedDate = currentDataset.StartDate;
+                        if (DateCalendar.SelectedDate == null)
+                            DateCalendar.SelectedDate = currentDataset.DateOfScores;
                         else
-                            currentDataset.StartDate = (DateTime)StartDateCalendar.SelectedDate;
-
-                        if (EndDateCalendar.SelectedDate == null)
-                            EndDateCalendar.SelectedDate = currentDataset.EndDate;
-                        else
-                            currentDataset.EndDate = (DateTime)EndDateCalendar.SelectedDate;
+                            currentDataset.DateOfScores = (DateTime)DateCalendar.SelectedDate;
                     }
                     StatusTextBlock.Text = $"File successfully read.";
                     PopulateDataGrid();
-                    StartDateCalendar.SelectedDateChanged += StartDateCalendar_SelectedDateChanged;
-                    EndDateCalendar.SelectedDateChanged += EndDateCalendar_SelectedDateChanged;
+
+                    DateCalendar.SelectedDateChanged += DateCalendar_SelectedDateChanged;
+                    PreviousFileNameTextBox.TextChanged += PreviousFileNameTextBox_TextChanged;
+
+                    PreviousChooseFileButton.IsEnabled = true;
+                    PreviousFileNameTextBox.IsEnabled = true;
                     ExportToExcelButton.IsEnabled = true;
                 }
                 else
@@ -133,14 +134,9 @@ namespace ScoresToExcelApp
             }
         }
 
-        private void EndDateCalendar_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        private void DateCalendar_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            currentDataset.EndDate = (DateTime)(sender as DatePicker).SelectedDate;
-        }
-
-        private void StartDateCalendar_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-        {
-            currentDataset.StartDate = (DateTime)(sender as DatePicker).SelectedDate;
+            currentDataset.DateOfScores = (DateTime)(sender as DatePicker).SelectedDate;
         }
 
         private bool CheckContainsValidFileNameAndPath(string text)
@@ -158,14 +154,9 @@ namespace ScoresToExcelApp
                     Header = "Member Name",
                     Binding = new Binding("MemberName")
                 };
-                DataGridTextColumn averageColumn = new DataGridTextColumn()
-                {
-                    Header = "Average",
-                    Binding = new Binding("UnadjustedAverage") { StringFormat = "N2" }
-                };
                 adjustedAverageColumn = new DataGridTextColumn()
                 {
-                    Header = "Adjusted",
+                    Header = "Current",
                     Binding = new Binding("AdjustedAverage") { StringFormat = "N2" }
                 };
                 DataGridTextColumn previousAverageColumn = new DataGridTextColumn()
@@ -190,9 +181,8 @@ namespace ScoresToExcelApp
                 };
 
                 ScoresDataGrid.Columns.Add(nameCol);
-                ScoresDataGrid.Columns.Add(averageColumn);
-                ScoresDataGrid.Columns.Add(adjustedAverageColumn);
                 ScoresDataGrid.Columns.Add(previousAverageColumn);
+                ScoresDataGrid.Columns.Add(adjustedAverageColumn);
                 ScoresDataGrid.Columns.Add(scoreColumn);
                 ScoresDataGrid.Columns.Add(badScoresColumn);
                 ScoresDataGrid.Columns.Add(categoryColumn);
@@ -209,7 +199,7 @@ namespace ScoresToExcelApp
         }
 
         /// <summary>
-        /// Sort the datagridview based on the column. Found here: https://stackoverflow.com/a/19952233
+        /// Sort the datagridview based on the column. Method found here: https://stackoverflow.com/a/19952233
         /// </summary>
         public static void SortDataGrid(DataGrid dataGrid, DataGridColumn column)
         {

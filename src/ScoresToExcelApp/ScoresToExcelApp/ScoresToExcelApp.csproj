@@ -67,6 +67,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DatePickerCalendar.cs" />
     <Compile Include="FileDatasetType.cs" />
     <Compile Include="ScorerCategory.cs" />
     <Page Include="MainWindow.xaml">

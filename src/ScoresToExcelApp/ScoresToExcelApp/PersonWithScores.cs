@@ -5,10 +5,10 @@ namespace ScoresToExcelApp
 {
     public class PersonWithScores
     {
-        private const int MemberNameColumnIndex = 0;
-        private const int MemberNumberColumnIndex = 1;
-        private const int MemberUnadjustedAverageColumnIndex = 2;
-        private const int MemberScoresColumnIndex = 3;
+        private const int FileMemberNameColumnIndex = 0;
+        private const int FileMemberNumberColumnIndex = 1;
+        private const int FileMemberUnadjustedAverageColumnIndex = 2;
+        private const int FileMemberBeginningOfScoresColumnIndex = 3;
 
         public string MemberName { get; }
         public int MemberNumber { get; }
@@ -40,17 +40,17 @@ namespace ScoresToExcelApp
             //"FirstName SecondName",1234,87.57,87,81,90,88,89,89,89
 
             var splitRow = rowFromCSV.Split(',');
-            MemberName = splitRow[MemberNameColumnIndex].Trim('"');
-            MemberNumber = int.Parse(splitRow[MemberNumberColumnIndex]);
-            UnadjustedAverage = double.Parse(splitRow[MemberUnadjustedAverageColumnIndex]);
+            MemberName = splitRow[FileMemberNameColumnIndex].Trim('"');
+            MemberNumber = int.Parse(splitRow[FileMemberNumberColumnIndex]);
+            UnadjustedAverage = double.Parse(splitRow[FileMemberUnadjustedAverageColumnIndex]);
             //everything after third column are scores.
 
-            var unparsedScores = new string[splitRow.Length - MemberScoresColumnIndex];
-            Scores = new int[splitRow.Length - MemberScoresColumnIndex];
+            var unparsedScores = new string[splitRow.Length - FileMemberBeginningOfScoresColumnIndex];
+            Scores = new int[splitRow.Length - FileMemberBeginningOfScoresColumnIndex];
 
             for (int i = 0; i < Scores.Length; i++)
             {
-                unparsedScores[i] = splitRow[i + MemberScoresColumnIndex];
+                unparsedScores[i] = splitRow[i + FileMemberBeginningOfScoresColumnIndex];
                 Scores[i] = int.Parse(unparsedScores[i]);
             }
 
@@ -89,7 +89,7 @@ namespace ScoresToExcelApp
             AdjustedAverage = Math.Round(AdjustedScores.Average(), 2);
         }
 
-        public void SetPreviousAverage(double previousAverage)
+        public void SetPreviousAverage(double? previousAverage)
         {
             PreviousAverage = previousAverage;
         }

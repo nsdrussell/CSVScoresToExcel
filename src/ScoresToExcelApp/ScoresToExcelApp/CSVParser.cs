@@ -33,7 +33,7 @@ namespace ScoresToExcelApp
             return new FileDataset(peopleWithScores, FileName, datasetType);
         }
 
-        public FileDataset ParseIntoFileDataset(FileDatasetType datasetType, DateTime startDate, DateTime endDate)
+        public FileDataset ParseIntoFileDataset(FileDatasetType datasetType, DateTime monthOfDataset)
         {
             var peopleWithScores = new List<PersonWithScores>();
             using (var reader = new StreamReader(FileName))
@@ -50,7 +50,7 @@ namespace ScoresToExcelApp
                 }
             }
 
-            return new FileDataset(peopleWithScores, FileName, datasetType, startDate, endDate);
+            return new FileDataset(peopleWithScores, FileName, datasetType, monthOfDataset);
         }
 
         /// <summary>

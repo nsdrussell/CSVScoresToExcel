@@ -6,8 +6,12 @@ There is a system in place already to keep track of scores, which includes the a
 ## Arguments
 The filename can be passed as an argument to read it on opening. Right click in Windows Explorer on your desired .csv file->Open With...-> Choose another app-> Choose the application executable. The application will read it on opening. This will save having to select the file manually.
 
+Alternatively drag the .csv file onto the application executable and let go to do exactly the same thing.
+
 ## Build instructions
-In Visual Studio, load the .sln file under `\src\ScoresToExcelApp\`, then build and run. You will need WPF (Windows Presentation Foundation) and .NET Framework 4.7.2 enabled. I wrote and built this using VS2019.
+In Visual Studio, load the .sln file under `\src\ScoresToExcelApp\`, then build and run. You will need WPF (Windows Presentation Foundation) and .NET Framework 4.7.2 enabled. 
+
+I wrote and built this using VS2019.
 
 ## Information
 ### Input

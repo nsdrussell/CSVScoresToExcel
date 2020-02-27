@@ -3,6 +3,11 @@ This is a small application that generates spreadsheets for a sports club. The o
 
 There is a system in place already to keep track of scores, which includes the ability to export scores to .csv format. Currently, heads of sections must do a manual process of data cleansing and copying into spreadsheets which is time consuming, and as a result often delayed because time has not been found to do it.
 
+## Download
+Latest version of the application can be found here.
+
+https://github.com/nsdrussell/CSVScoresToExcel/releases/
+
 ## Arguments
 The filename can be passed as an argument to read it on opening. Right click in Windows Explorer on your desired .csv file->Open With...-> Choose another app-> Choose the application executable. The application will read it on opening. This will save having to select the file manually.
 

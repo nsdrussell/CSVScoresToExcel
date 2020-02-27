@@ -1,13 +1,10 @@
 ﻿namespace ScoresToExcelApp
 {
-    internal enum ScorerCategory
+    public enum ScorerCategory
     {
         ClassA,
-
         ClassB,
-
         ClassC,
-
-        FewerThan5Cards
+        FewerThan4Cards
     }
 }

@@ -1,18 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace ScoresToExcelApp
 {
-    internal class CSVParser
+    public class CSVParser
     {
-        public string FileName { get; set; }
+        public string FileName { get; }
 
         public CSVParser(string fileName)
         {
             FileName = fileName;
         }
 
-        public FileDataset ParseIntoPeopleWithScores(FileDatasetType datasetType)
+        public FileDataset ParseIntoFileDataset(FileDatasetType datasetType)
         {
             var peopleWithScores = new List<PersonWithScores>();
             using (var reader = new StreamReader(FileName))
@@ -32,7 +33,31 @@ namespace ScoresToExcelApp
             return new FileDataset(peopleWithScores, FileName, datasetType);
         }
 
-        internal bool CheckCanParse(out string result)
+        public FileDataset ParseIntoFileDataset(FileDatasetType datasetType, DateTime startDate, DateTime endDate)
+        {
+            var peopleWithScores = new List<PersonWithScores>();
+            using (var reader = new StreamReader(FileName))
+            {
+                reader.ReadLine(); //ignore the first line as is just headers.
+
+                //now read the rest of the file to the end and add people based on that.
+                while (!reader.EndOfStream)
+                {
+                    var row = reader.ReadLine().Trim();
+                    if (string.IsNullOrEmpty(row)) continue;
+
+                    peopleWithScores.Add(new PersonWithScores(row));
+                }
+            }
+
+            return new FileDataset(peopleWithScores, FileName, datasetType, startDate, endDate);
+        }
+
+        /// <summary>
+        /// Checks if can parse the file.
+        /// If can parse, result = string.Empty, otherwise the error message if can't.
+        /// </summary>
+        public bool CheckCanParse(out string result)
         {
             string firstLine = result = string.Empty;
             try
@@ -42,7 +67,7 @@ namespace ScoresToExcelApp
                     firstLine = reader.ReadLine();
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 result = ex.Message;
             }

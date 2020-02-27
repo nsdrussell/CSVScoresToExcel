@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace ScoresToExcelApp
 {
-    internal static class ArithmaticHelpers
+    public static class ArithmaticHelpers
     {
         /// <summary>
         /// The tolerance of scores allowed
@@ -28,7 +28,7 @@ namespace ScoresToExcelApp
             return sum / (doubleScores.Length - 2 * k);
         }
 
-        internal static int[] GetErroneousScoresGivenTruncatedMean(int[] scores, double truncatedMean)
+        public static int[] GetErroneousScoresGivenTruncatedMean(int[] scores, double truncatedMean)
         {
             return scores.Where(score => score < truncatedMean - 10 || score > truncatedMean + 10).ToArray();
         }

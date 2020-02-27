@@ -9,10 +9,16 @@ using System.Linq;
 
 namespace ScoresToExcelApp
 {
-    internal class FileDataset
+    public class FileDataset
     {
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        private string ExcelWorkSheetTitle => $"{SportName} Scores, {StartDate:dd MMMM yyyy} - {EndDate:dd MMMM yyyy)}";
+
+        public List<PersonWithScores> PeopleWithScores { get; }
+        public FileDatasetType DatasetType { get; }
+        public string SportName { get; }
+        public DateTime ExportDateTime { get; }
 
         private const int ExcelCategoryNameColumnIndex = 1;
         private const int ExcelNameColumnIndex = 2;
@@ -21,17 +27,32 @@ namespace ScoresToExcelApp
         private const int ExcelDifferenceColumnIndex = 5;
         private const int ExcelScoresMinimumColumnIndex = 6;
 
-        public List<PersonWithScores> PeopleWithScores { get; }
-        public FileDatasetType DatasetType { get; }
-        public string SportName { get; }
-        public DateTime ExportDateTime { get; }
-
         public FileDataset(List<PersonWithScores> peopleWithScores, string fullFileName, FileDatasetType datasetType)
         {
             this.PeopleWithScores = peopleWithScores;
             this.DatasetType = datasetType;
             var fileName = Path.GetFileNameWithoutExtension(fullFileName);
 
+            var lastmonth = DateTime.Now.AddMonths(-1);
+            StartDate = lastmonth.AddDays(1 - lastmonth.Day);
+            EndDate = new DateTime(lastmonth.Year, lastmonth.Month, DateTime.DaysInMonth(lastmonth.Year, lastmonth.Month));
+
+            //filename format is sportname_export-1234567890.csv so can derive sportname and export date from it
+            SportName = fileName.Split('_')[0];
+
+            long epochSeconds = long.Parse(fileName.Split('-')[1]);
+
+            ExportDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified).AddSeconds(epochSeconds);
+        }
+
+        public FileDataset(List<PersonWithScores> peopleWithScores, string fullFileName, FileDatasetType datasetType, DateTime startDate, DateTime endDate)
+        {
+            this.PeopleWithScores = peopleWithScores;
+            this.DatasetType = datasetType;
+            this.StartDate = startDate;
+            this.EndDate = endDate;
+
+            var fileName = Path.GetFileNameWithoutExtension(fullFileName);
             //filename format is sportname_export-1234567890.csv so can derive sportname and export date from it
             SportName = fileName.Split('_')[0];
 
@@ -57,7 +78,7 @@ namespace ScoresToExcelApp
         }
 
         /// <summary>
-        /// Returns as string like "SPORTNAME Scores yyyyMMdd
+        /// Returns as string like "SportName Scores yyyyMMdd
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -78,7 +99,7 @@ namespace ScoresToExcelApp
         /// Export to excel. Returns the filename.
         /// </summary>
         /// <returns></returns>
-        internal string ExportToExcel()
+        public string ExportToExcel()
         {
             using (ExcelPackage package = new ExcelPackage())
             {
@@ -87,6 +108,9 @@ namespace ScoresToExcelApp
 
                 int minimumRowIndex = 1;
                 //headers
+                sheet.Cells[minimumRowIndex++, ExcelCategoryNameColumnIndex].Value = ExcelWorkSheetTitle;
+
+                sheet.Cells[minimumRowIndex, ExcelCategoryNameColumnIndex].Value = "Category";
                 sheet.Cells[minimumRowIndex, ExcelNameColumnIndex].Value = "Name";
                 sheet.Cells[minimumRowIndex, ExcelAverageColumnIndex].Value = "Adjusted Average";
                 sheet.Cells[minimumRowIndex, ExcelPreviousAverageColumnIndex].Value = "Previous Average";
@@ -94,6 +118,7 @@ namespace ScoresToExcelApp
                 sheet.Cells[minimumRowIndex, ExcelScoresMinimumColumnIndex].Value = "Scores";
 
                 //set bold
+                sheet.Column(ExcelCategoryNameColumnIndex).Style.Font.Bold = true;
                 sheet.Column(ExcelDifferenceColumnIndex).Style.Font.Bold = true;
                 sheet.Row(minimumRowIndex++).Style.Font.Bold = true;
 
@@ -102,10 +127,8 @@ namespace ScoresToExcelApp
                 foreach (var category in categories)
                 {
                     //Category
-                    sheet.Cells[minimumRowIndex, ExcelCategoryNameColumnIndex].Value =
+                    sheet.Cells[minimumRowIndex++, ExcelCategoryNameColumnIndex].Value =
                         PeopleWithScores.First(member => member.Category == category).ReadableCategory;
-
-                    sheet.Row(minimumRowIndex++).Style.Font.Bold = true;
 
                     var membersInCategory = PeopleWithScores
                         .Where(member => member.Category == category)
@@ -116,7 +139,8 @@ namespace ScoresToExcelApp
                         sheet.Cells[minimumRowIndex, ExcelNameColumnIndex].Value = person.MemberName;
                         sheet.Cells[minimumRowIndex, ExcelAverageColumnIndex].Value = person.AdjustedAverage;
                         sheet.Cells[minimumRowIndex, ExcelPreviousAverageColumnIndex].Value = person.PreviousAverage;
-                        sheet.Cells[minimumRowIndex, ExcelDifferenceColumnIndex].Formula = $"=C{minimumRowIndex}-D{minimumRowIndex}";
+                        sheet.Cells[minimumRowIndex, ExcelDifferenceColumnIndex].Formula =
+                            $"= IF(D{minimumRowIndex}>0,C{minimumRowIndex}-D{minimumRowIndex},\" \")";
                         for (int i = 0; i < person.Scores.Length; i++)
                         {
                             sheet.Cells[minimumRowIndex, ExcelScoresMinimumColumnIndex + i].Value
@@ -136,6 +160,8 @@ namespace ScoresToExcelApp
                 sheet.Column(ExcelAverageColumnIndex).Style.Numberformat.Format =
                 sheet.Column(ExcelPreviousAverageColumnIndex).Style.Numberformat.Format =
                 sheet.Column(ExcelDifferenceColumnIndex).Style.Numberformat.Format = "0.00";
+
+                sheet.Column(ExcelCategoryNameColumnIndex).Width = 19;
 
                 for (int i = ExcelScoresMinimumColumnIndex; i <= sheet.Dimension.End.Column; i++) { sheet.Column(i).Width = 4; }
 

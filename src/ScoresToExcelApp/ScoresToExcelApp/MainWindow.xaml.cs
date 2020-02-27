@@ -41,7 +41,7 @@ namespace ScoresToExcelApp
                 CSVParser parser = new CSVParser(PreviousFileNameTextBox.Text);
                 if (parser.CheckCanParse(out string result))
                 {
-                    previousDataset = parser.ParseIntoPeopleWithScores(FileDatasetType.PreviousMonth);
+                    previousDataset = parser.ParseIntoFileDataset(FileDatasetType.PreviousMonth);
                     StatusTextBlock.Text = $"File successfully read.";
                     PopulateDataGrid();
                     StartDateCalendar.SelectedDateChanged += StartDateCalendar_SelectedDateChanged;
@@ -92,7 +92,25 @@ namespace ScoresToExcelApp
                 string result;
                 if (parser.CheckCanParse(out result))
                 {
-                    currentDataset = parser.ParseIntoPeopleWithScores(FileDatasetType.CurrentMonth);
+                    //if have set the start date and end date
+                    if (EndDateCalendar.SelectedDate != null && StartDateCalendar.SelectedDate != null)
+                    {
+                        currentDataset = parser.ParseIntoFileDataset(FileDatasetType.CurrentMonth, (DateTime)EndDateCalendar.SelectedDate, (DateTime)StartDateCalendar.SelectedDate);
+                    }
+                    else
+                    {
+                        currentDataset = parser.ParseIntoFileDataset(FileDatasetType.CurrentMonth);
+
+                        if (StartDateCalendar.SelectedDate == null)
+                            StartDateCalendar.SelectedDate = currentDataset.StartDate;
+                        else
+                            currentDataset.StartDate = (DateTime)StartDateCalendar.SelectedDate;
+
+                        if (EndDateCalendar.SelectedDate == null)
+                            EndDateCalendar.SelectedDate = currentDataset.EndDate;
+                        else
+                            currentDataset.EndDate = (DateTime)EndDateCalendar.SelectedDate;
+                    }
                     StatusTextBlock.Text = $"File successfully read.";
                     PopulateDataGrid();
                     StartDateCalendar.SelectedDateChanged += StartDateCalendar_SelectedDateChanged;

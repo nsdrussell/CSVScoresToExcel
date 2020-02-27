@@ -1,6 +1,6 @@
 ﻿namespace ScoresToExcelApp
 {
-    internal enum FileDatasetType
+    public enum FileDatasetType
     {
         CurrentMonth,
         PreviousMonth

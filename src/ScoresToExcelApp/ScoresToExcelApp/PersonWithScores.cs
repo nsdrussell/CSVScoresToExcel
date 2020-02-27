@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace ScoresToExcelApp
 {
-    internal class PersonWithScores
+    public class PersonWithScores
     {
         private const int MemberNameColumnIndex = 0;
         private const int MemberNumberColumnIndex = 1;
@@ -56,10 +56,10 @@ namespace ScoresToExcelApp
 
             SetAdjustedAverageAndErroneousScores(unparsedScores);
 
-            if (AdjustedScores.Length < 5)
+            if (AdjustedScores.Length < 4)
             {
-                Category = ScorerCategory.FewerThan5Cards;
-                ReadableCategory = "Fewer Than 5 Cards";
+                Category = ScorerCategory.FewerThan4Cards;
+                ReadableCategory = "Fewer Than 4 Cards";
             }
             else if (AdjustedAverage >= 90d)
             {

@@ -32,7 +32,7 @@ The number of columns is variable depending on the number of scores that have be
 
 Each row is separated by a line feed (\n).
 
-I have included samples under `/src/ScoresToExcelApp/Samples`.
+I have included samples under `/src/ScoresToExcelApp/Samples/`. GitHub reports that there are errors with the files, but they are genuinely as they should be.
 ### Data handling
 I was tempted to try parsing the entire file to a DataTable, but unfortunately there is a varying number of columns and this method would not be up to scratch as a result. I take each line from the file after the header row and parse them into PersonWithScore objects.
 

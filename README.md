@@ -9,7 +9,7 @@ The filename can be passed as an argument to read it on opening. Right click in 
 Alternatively drag the .csv file onto the application executable and let go to do exactly the same thing.
 
 ## Build instructions
-In Visual Studio, load the .sln file under `\src\ScoresToExcelApp\`, then build and run. You will need WPF (Windows Presentation Foundation) and .NET Framework 4.7.2 enabled. 
+In Visual Studio, load the .sln file under `/src/ScoresToExcelApp/`, then build and run. You will need WPF (Windows Presentation Foundation) and .NET Framework 4.7.2 enabled. 
 
 I wrote and built this using VS2019.
 
@@ -26,6 +26,8 @@ Name,Member Nos,Average,Scores
 The number of columns is variable depending on the number of scores that have been put in.
 
 Each row is separated by a line feed (\n).
+
+I have included samples under `/src/ScoresToExcelApp/Samples`.
 ### Data handling
 I was tempted to try parsing the entire file to a DataTable, but unfortunately there is a varying number of columns and this method would not be up to scratch as a result. I take each line from the file after the header row and parse them into PersonWithScore objects.
 

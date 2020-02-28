@@ -8,11 +8,16 @@ Latest version of the application can be found here.
 
 https://github.com/nsdrussell/CSVScoresToExcel/releases/
 
-## Arguments
-The filename can be passed as an argument to read it on opening. Right click in Windows Explorer on your desired .csv file->Open With...-> Choose another app-> Choose the application executable. The application will read it on opening. This will save having to select the file manually.
+## Future
+At present the application matches the original specification, so I am unlikely to do much more except bug fixing when they are found. However, if you'd like this adapted for your own club or own purposes, either let me know by submitting an issue with the [issue tracker](https://github.com/nsdrussell/CSVScoresToExcel/issues) and I'll see if I can help, or make a new branch and do so yourself.
 
-Alternatively drag the .csv file onto the application executable and let go to do exactly the same thing.
+I might decide to make an installer for the application at some point.
 
+## Passing files as arguments
+The filename can be passed as an argument to read it on opening. This will save having to select the current month file manually. There is more than one way to do this.
+* Easiest: Drag the .csv file onto CSVScoresToExcelApp.exe (the program itself) and let go.
+* Permanent: Right click in Windows Explorer on your desired .csv file->Open With...-> Tick the "Always use this app to open .csv files" tickbox> Choose another app-> Choose the application executable. Now when you double click a csv it will always open with this application.
+* Technical: Can do it from the command line; like `ScoresToExcelApp "C:\Files\NormalSample_export-1582799610.csv"`.
 ## Build instructions
 In Visual Studio, load the .sln file under `/src/ScoresToExcelApp/`, then build and run. You will need WPF (Windows Presentation Foundation) and .NET Framework 4.7.2 enabled. 
 
@@ -42,6 +47,6 @@ Data cleansing is done so that if a member ordinarily scores in the 70s and inpu
 
 ## Further information
 ### Arithmetic
-I adapted the TruncatedMean method from the [Accord.NET framework](https://github.com/accord-net/framework).
+I adapted the TruncatedMean method from the [Accord.NET framework](https://github.com/accord-net/framework). I don't take the truncated mean as the average, but rather use it to remove erroneous scores from the scores used then calculate an average.
 ### Exporting to Excel format
 I chose to use the [EPPlus framework](https://github.com/JanKallman/EPPlus) to output the data to excel as I am familiar with it and it works well.
